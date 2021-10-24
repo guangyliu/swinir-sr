@@ -1,5 +1,5 @@
 {
-  "task": "dog_small_searching_x4"     // "swinir_RefSR_cufed_x4_check_code" classical image sr for x2/x3/x4/x8. root/task/images-models-options
+  "task": "dog_small_searching_x4"     // 1"swinir_RefSR_cufed_x4_check_code" classical image sr for x2/x3/x4/x8. root/task/images-models-options
   , "model": "plain" // "plain" | "plain2" if two inputs
   , "gpu_ids": [4] //[0,1,2,3,4,5,6,7]
   , "dist": false
@@ -43,7 +43,7 @@
     , "img_size": 160                     // 48, For fair comparison, LR patch size is set to 48 or 64 when compared with RCAN or RRDB.
     , "window_size": 8  // Try 8, 16
     , "img_range": 1.0
-    , "backbone_depths": [3, 3, 3, 3] //[3, 3, 3, 3] [6, 6, 6, 6, 6, 6] [6, 6, 6, 6]
+    , "backbone_depths": [3, 3, 3, 3] //[3, 3, 3, 3] [6, 6, 6, 6, 6, 6] [6, 6, 6, 6] self-attention
     , "embed_dim": 180 //180
     , "backbone_num_heads": [3, 3, 3, 3] // [3, 3, 3, 3] [6, 6, 6, 6, 6, 6] [6, 6, 6, 6]
     , "mlp_ratio": 2
@@ -51,7 +51,7 @@
     , "resi_connection": "1conv"        // "1conv" | "3conv"
 
     , "init_type": "default"
-    , "depths": [2]
+    , "depths": [2] // For cross-attention
     , "num_heads": [2]
   }
 

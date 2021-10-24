@@ -20,7 +20,7 @@
       , "dataroot": "/data/amax/zwb/CIMR-SR/data/CUFED"    // base path of CUFED dataset
       , "dataloader_shuffle": true
       , "dataloader_num_workers": 4
-      , "dataloader_batch_size": 3     // batch size 1 | 16 | 32 | 48 | 64 | 128. Total batch size =4x8=32 in SwinIR
+      , "dataloader_batch_size": 8     // batch size 1 | 16 | 32 | 48 | 64 | 128. Total batch size =4x8=32 in SwinIR
       , "scale": 4
       , "io_backend": {
         "type": "disk"
@@ -43,16 +43,16 @@
     , "img_size": 160                     // 48, For fair comparison, LR patch size is set to 48 or 64 when compared with RCAN or RRDB.
     , "window_size": 8  // Try 8, 16
     , "img_range": 1.0
-    , "depths": [3, 3, 3, 3] //[3, 3, 3, 3] [6, 6, 6, 6, 6, 6] [6, 6, 6, 6]
+    , "backbone_depths": [3, 3, 3, 3] //[3, 3, 3, 3] [6, 6, 6, 6, 6, 6] [6, 6, 6, 6]
     , "embed_dim": 180 //180
-    , "num_heads": [3, 3, 3, 3] // [3, 3, 3, 3] [6, 6, 6, 6, 6, 6] [6, 6, 6, 6]
+    , "backbone_num_heads": [3, 3, 3, 3] // [3, 3, 3, 3] [6, 6, 6, 6, 6, 6] [6, 6, 6, 6]
     , "mlp_ratio": 2
     , "upsampler": "pixelshuffle"        // "pixelshuffle" | "pixelshuffledirect" | "nearest+conv" | null
     , "resi_connection": "1conv"        // "1conv" | "3conv"
 
     , "init_type": "default"
-    , "backbone_depths": [2]
-    , "backbone_num_heads": [2]
+    , "depths": [2]
+    , "num_heads": [2]
   }
 
   , "train": {

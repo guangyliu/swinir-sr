@@ -712,7 +712,6 @@ class BasicLayer(nn.Module):
         self.input_resolution = input_resolution
         self.depth = depth
         self.use_checkpoint = use_checkpoint
-
         # build blocks
         self.blocks = nn.ModuleList([
             SwinTransformerBlock(dim=dim, input_resolution=input_resolution,
@@ -723,7 +722,7 @@ class BasicLayer(nn.Module):
                                  drop=drop, attn_drop=attn_drop,
                                  drop_path=drop_path[i] if isinstance(drop_path, list) else drop_path,
                                  norm_layer=norm_layer)
-            for i in range(depth)])  # blocks == one RSTB
+            for i in range(depth)])  # blocks == one RSTB, depth=3, 0 1 2 3
 
         # patch merging layer
         if downsample is not None:
@@ -1147,12 +1146,12 @@ class SwinRefSR(nn.Module):
     """
 
     def __init__(self, img_size=160, patch_size=1, in_chans=3,
-                 embed_dim=180, depths=[3, 3, 3, 3], num_heads=[3, 3, 3, 3],
+                 embed_dim=180, depths=[2], num_heads=[2],
                  window_size=8, mlp_ratio=4., qkv_bias=True, qk_scale=None,
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,
                  norm_layer=nn.LayerNorm, ape=True, patch_norm=True,
-                 use_checkpoint=False, upscale=4, img_range=1., upsampler='pixelshuffle', resi_connection='1conv', backbone_depths=[3,3,3,3],
-                   backbone_num_heads=[3,3,3,3],
+                 use_checkpoint=False, upscale=4, img_range=1., upsampler='pixelshuffle', resi_connection='1conv',
+                 backbone_depths=[3, 3, 3, 3], backbone_num_heads=[3, 3, 3, 3],
                  **kwargs):
         super(SwinRefSR, self).__init__()
         num_in_ch = in_chans
@@ -1176,8 +1175,8 @@ class SwinRefSR(nn.Module):
 
         #####################################################################################################
         ################################### 2, deep feature extraction ######################################
-        self.num_layers = len(depths)  # number of RSTB
-        self.backbone_num_layers = len(backbone_depths)
+        self.num_layers = len(depths)  # number of RSTB 1
+        self.backbone_num_layers = len(backbone_depths)  # 4
         self.embed_dim = embed_dim  # 180
         self.ape = ape  # True: add absolute position embedding to the patch embedding
         self.patch_norm = patch_norm  # True: add normalization after patch embedding
@@ -1220,7 +1219,8 @@ class SwinRefSR(nn.Module):
         self.pos_drop = nn.Dropout(p=drop_rate)
 
         # stochastic depth
-        dpr = [x.item() for x in torch.linspace(0, drop_path_rate, sum(depths))]  # stochastic depth decay rule
+        backbone_dpr = [x.item() for x in torch.linspace(0, drop_path_rate, sum(backbone_depths))]  # stochastic depth decay rule
+        dpr = [x.item() for x in torch.linspace(0, drop_path_rate, sum(depths))]
 
         # build Residual Swin Transformer blocks (RSTB) For backbone model
         self.layers = nn.ModuleList()
@@ -1234,7 +1234,7 @@ class SwinRefSR(nn.Module):
                          mlp_ratio=self.mlp_ratio,
                          qkv_bias=qkv_bias, qk_scale=qk_scale,
                          drop=drop_rate, attn_drop=attn_drop_rate,
-                         drop_path=dpr[sum(depths[:i_layer]):sum(depths[:i_layer + 1])],  # no impact on SR results
+                         drop_path=backbone_dpr[sum(backbone_depths[:i_layer]):sum(backbone_depths[:i_layer + 1])],  # no impact on SR results
                          norm_layer=norm_layer,
                          downsample=None,
                          use_checkpoint=use_checkpoint,
@@ -1315,7 +1315,6 @@ class SwinRefSR(nn.Module):
                 nn.Conv2d(num_feat, num_feat // 2, kernel_size=3, stride=1, padding=1),
                 nn.LeakyReLU(0.1, True),
                 nn.Conv2d(num_feat // 2, 3, kernel_size=3, stride=1, padding=1))
-
 
             self.lrelu = nn.LeakyReLU(negative_slope=0.1, inplace=True)
 
@@ -1466,8 +1465,9 @@ class SwinRefSR(nn.Module):
             '''
             base = F.interpolate(lr, None, 4, 'bilinear', False)  # x4
             lr = self.conv_first(lr)  # torch.Size([B, 180, 40, 40])
-            #lr = self.content_extractor(lr)  # dim: 3 -> 180
-            lr = self.conv_after_body(self.backbone_forward_features(lr)) + lr  # torch.Size([1, 60, 264, 184]) dim: 180 -> 180
+            # lr = self.content_extractor(lr)  # dim: 3 -> 180
+            lr = self.conv_after_body(
+                self.backbone_forward_features(lr)) + lr  # torch.Size([1, 60, 264, 184]) dim: 180 -> 180
             lr = self.conv_before_upsample(lr)  # torch.Size([B, 64, 40, 40]) dim: embed_dim -> num_feat
             backbone_feature = self.upsample(
                 lr)  # torch.Size([B, 64, 160, 160]) to be concatenated with lr_up_feature then output the SR result
@@ -1491,7 +1491,7 @@ class SwinRefSR(nn.Module):
 
             # sr = self.conv_last(concat_features)  # torch.Size([1, 3, 1056, 736])
 
-            #Concate:
+            # Concate:
             sr = self.aggregate_features(backbone_feature,
                                          lr_up) + base  # TODO: Try to add the backbone_feature, or base, or delete?
 

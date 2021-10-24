@@ -211,12 +211,12 @@ def define_G(opt):
                    img_range=opt_net['img_range'],  # 1
                    depths=opt_net['depths'],  # [3,3,3,3]
                    embed_dim=opt_net['embed_dim'],  # 180
-                   num_heads=opt_net['num_heads'],  # [3,3,3,3]
+                   num_heads=opt_net['num_heads'],
                    mlp_ratio=opt_net['mlp_ratio'],  # 2
                    upsampler=opt_net['upsampler'],  # "pixelshufle"
                    resi_connection=opt_net['resi_connection'],
-                   backbone_depths=opt_net['backbone_depths'],
-                   backbone_num_heads=opt_net['backbone_num_heads'],
+                   backbone_depths=opt_net['backbone_depths'],  # [3,3,3,3]
+                   backbone_num_heads=opt_net['backbone_num_heads'],  # [3,3,3,3]
                    )  # "1conv"
 
     # ----------------------------------------

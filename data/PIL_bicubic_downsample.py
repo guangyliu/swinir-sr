@@ -65,7 +65,7 @@ class ReferenceDataset(Dataset):
     def __getitem__(self, index):
         if self.file_client is None:
             self.file_client = FileClient(self.io_backend_opt.pop('type'), **self.io_backend_opt)
-        scale = 4 #dataset_opt['scale']
+        scale = 4  # dataset_opt['scale']
         filename = self.filenames[index]
 
         # if self.opt['phase'] == 'train':
